@@ -108,7 +108,8 @@ myApp.factory('AccountService', ['$http', '$rootScope', '$state', 'tokenStore', 
 
 // Set up controllers
 
-myApp.controller('MainController', ['$scope', 'AccountService', function ($scope, AccountService) {
+myApp.controller('HomeController', ['$scope', 'AccountService', function ($scope, AccountService) {
+
     AccountService.getUserInfo().success(function (data) {
         $scope.user = data;
     });
@@ -127,7 +128,10 @@ myApp.controller('LoginController', ['$scope', '$state', 'AccountService', funct
     $scope.user = {};
     $scope.login = function () {
         AccountService.login($scope.user).then(function () {
-            $state.go('home');
+            AccountService.getUserInfo().success(function (data) {
+                $scope.$parent.user = data;
+                $state.go('values');
+            });
         });
     };
 }]);
@@ -137,7 +141,7 @@ myApp.controller('RegisterUserController', ['$scope', '$state', 'AccountService'
     $scope.register = function () {
         AccountService.register($scope.user).then(function () {
             AccountService.login($scope.user).then(function (data) {
-                $state.go('home');
+                $state.go('values');
             })
         });
     };
@@ -149,36 +153,47 @@ myApp.controller('RegisterUserController', ['$scope', '$state', 'AccountService'
 
 myApp.config(['$stateProvider', '$urlRouterProvider', function ($stateProvider, $urlRouterProvider) {
 
-    $urlRouterProvider.otherwise('/home');
+    $urlRouterProvider.otherwise('/values');
 
     $stateProvider
 
         .state('home', {
-            url: '/home',
+            abstract: true,
             templateUrl: 'Templates/home.html',
+            controller: 'HomeController'
+        })
+
+        .state('values', {
+            url: '/values',
+            parent: 'home',
+            templateUrl: 'Templates/values.html',
             controller: 'DemoController'
         })
 
         .state('login', {
 //            url: '/login',
+            parent: 'home',
             templateUrl: 'Templates/login.html',
             controller: 'LoginController'
         })
 
         .state('logout', {
             url: '/logout',
-            resolve:  {
+            parent: 'home',
+            resolve: {
                 AccountService: 'AccountService'
             },
             onEnter: function (AccountService) {
                 AccountService.logout();
             },
-            controller: function($state) {
-                $state.go('home');
+            controller: function ($scope, $state) {
+                $scope.$parent.user = null;
+                $state.go('values');
             }
         })
 
         .state('register', {
+            parent: 'home',
             templateUrl: 'Templates/register.html',
             controller: 'RegisterUserController'
         });
