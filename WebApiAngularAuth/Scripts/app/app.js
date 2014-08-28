@@ -27,9 +27,10 @@ myApp.factory('tokenStore', function () {
 });
 
 
-// Set global error message if AJAX calls fail
+
 myApp.factory('httpInterceptor', ['$q', '$rootScope', 'tokenStore', function ($q, $rootScope, tokenStore) {
     return {
+        // Add Authorization header to requests if we have a bearer token.
         'request': function (config) {
             var token = tokenStore.getToken();
             if (token) {
@@ -37,6 +38,7 @@ myApp.factory('httpInterceptor', ['$q', '$rootScope', 'tokenStore', function ($q
             };
             return config;
         },
+        // Send global event on 401
         'responseError': function (rejection) {
             switch (rejection.status) {
                 case 401:
@@ -106,8 +108,6 @@ myApp.factory('AccountService', ['$http', '$rootScope', '$state', 'tokenStore', 
 
 // Set up controllers
 
-myApp.controller('MainController')
-
 myApp.controller('DemoController', ['$scope', 'ValuesService', function ($scope, ValuesService) {
     ValuesService.getValues().success(function (data) {
         $scope.values = data;
@@ -115,18 +115,15 @@ myApp.controller('DemoController', ['$scope', 'ValuesService', function ($scope,
 }]);
 
 myApp.controller('LoginController', ['$scope', '$state', 'AccountService', function ($scope, $state, AccountService) {
-
     $scope.user = {};
     $scope.login = function () {
         AccountService.login($scope.user).then(function () {
             $state.go('home');
         });
     };
-
 }]);
 
 myApp.controller('RegisterUserController', ['$scope', '$state', 'AccountService', function ($scope, $state, AccountService) {
-
     $scope.user = {};
     $scope.register = function () {
         AccountService.register($scope.user).then(function () {
