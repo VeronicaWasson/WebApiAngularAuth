@@ -77,7 +77,7 @@ myApp.factory('AccountService', ['$http', '$rootScope', '$state', 'tokenStore', 
     var tokenUrl = '/Token';
 
     return {
-        getuserinfo: function () {
+        getUserInfo: function () {
             return $http.get(accountUrl + '/UserInfo');
         },
 
@@ -107,6 +107,15 @@ myApp.factory('AccountService', ['$http', '$rootScope', '$state', 'tokenStore', 
 
 
 // Set up controllers
+
+myApp.controller('MainController', ['$scope', 'AccountService', function ($scope, AccountService) {
+    AccountService.getUserInfo().success(function (data) {
+        $scope.user = data;
+    });
+
+}]);
+
+
 
 myApp.controller('DemoController', ['$scope', 'ValuesService', function ($scope, ValuesService) {
     ValuesService.getValues().success(function (data) {
