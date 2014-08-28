@@ -19,6 +19,20 @@ using WebApiAngularAuth.Results;
 
 namespace WebApiAngularAuth.Controllers
 {
+    public class NoCacheAttribute : System.Web.Http.Filters.ActionFilterAttribute
+    {
+        public override void OnActionExecuted(System.Web.Http.Filters.HttpActionExecutedContext actionExecutedContext)
+        {
+            var cacheControl = actionExecutedContext.Response.Headers.CacheControl;
+            cacheControl.NoCache = true;
+            cacheControl.MaxAge = TimeSpan.FromSeconds(0);
+            cacheControl.NoStore = true;
+
+            base.OnActionExecuted(actionExecutedContext);
+        }
+    }
+
+
     [Authorize]
     [RoutePrefix("api/Account")]
     public class AccountController : ApiController
@@ -53,6 +67,7 @@ namespace WebApiAngularAuth.Controllers
 
         // GET api/Account/UserInfo
         [HostAuthentication(DefaultAuthenticationTypes.ExternalBearer)]
+        [NoCache]
         [Route("UserInfo")]
         public UserInfoViewModel GetUserInfo()
         {
