@@ -23,10 +23,12 @@ namespace WebApiAngularAuth.Controllers
     {
         public override void OnActionExecuted(System.Web.Http.Filters.HttpActionExecutedContext actionExecutedContext)
         {
-            var cacheControl = actionExecutedContext.Response.Headers.CacheControl;
-            cacheControl.NoCache = true;
-            cacheControl.MaxAge = TimeSpan.FromSeconds(0);
-            cacheControl.NoStore = true;
+            actionExecutedContext.Response.Headers.CacheControl = new System.Net.Http.Headers.CacheControlHeaderValue
+            {
+                NoCache = true,
+                MaxAge = TimeSpan.FromSeconds(0),
+                NoStore = true
+            };
 
             base.OnActionExecuted(actionExecutedContext);
         }
